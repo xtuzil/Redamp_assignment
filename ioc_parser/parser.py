@@ -48,7 +48,7 @@ class IOCParser:
             if not (self.delimiter == ""):
                 parts = line.split(self.delimiter)
 
-            if len(parts) < self.ioc_index:
+            if len(parts) <= self.ioc_index:
                 print(f"Can't get index {self.ioc_index} on line: {line}")
                 continue
 

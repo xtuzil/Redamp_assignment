@@ -1,4 +1,5 @@
 import unittest
+from ioc_parser.parser import IOCParser
 from ioc_parser.utils import is_ip_address
 
 
@@ -14,6 +15,51 @@ class TestIPAddress(unittest.TestCase):
 
     def test_invalid_ipv6_address(self):
         self.assertFalse(is_ip_address("invalid_ip_address"))
+
+
+class TestProccessIOCs(unittest.TestCase):
+    def test_process_iocs_empty_lines(self):
+        content = """
+http://spotifyvault.com/default/redirecttoken/394f6472-66ef-41a7-8019b56562578535
+http://jcbuid23--memomendezrange.repl.co/
+https://4567-87356.000webhostapp.com/applogin.html
+https://apple.appleidjs.com/
+https://metapay-zahlen.sbs/
+
+
+"""
+
+        expected = {
+            "urls": [
+                "http://spotifyvault.com/default/redirecttoken/394f6472-66ef-41a7-8019b56562578535",
+                "http://jcbuid23--memomendezrange.repl.co/",
+                "https://4567-87356.000webhostapp.com/applogin.html",
+                "https://apple.appleidjs.com/",
+                "https://metapay-zahlen.sbs/",
+            ],
+            "ip_addresses": [],
+        }
+        parser = IOCParser("fakesource", "", 0, None)
+        processed_ioc = parser.process_content(content)
+
+        self.assertEqual(processed_ioc, expected)
+
+    def test_process_iocs_ip_address_and_urls(self):
+        content = """1;https://apple.appleidjs.com/
+2;https://metapay-zahlen.sbs/
+3;192.0.0.1"""
+        expected = {
+            "urls": [
+                "https://apple.appleidjs.com/",
+                "https://metapay-zahlen.sbs/",
+            ],
+            "ip_addresses": ["192.0.0.1"],
+        }
+
+        parser = IOCParser("fakesource", ";", 1, None)
+        processed_ioc = parser.process_content(content)
+
+        self.assertEqual(processed_ioc, expected)
 
 
 if __name__ == "__main__":
